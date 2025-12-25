@@ -2,22 +2,23 @@ const express = require('express');
 const mysql = require('mysql2/promise');
 const cors = require('cors');
 const app = express();
-const port = 3000;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// MySQL connection configuration
 const dbConfig = {
-    host: 'localhost',
-    user: 'root', // Replace with your MySQL username
-    password: 'admin123', // Replace with your MySQL password
-    database: 'vehicle_rental'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT
 };
 
-// Serve static files (e.g., index.html)
-app.use(express.static('public'));
+app.get("/", (req, res) => {
+    res.send("Vehicle Rental Backend Running 🚗");
+});
+
 
 // API endpoint to handle form submission
 app.post('/api/rental', async (req, res) => {
@@ -69,7 +70,8 @@ app.post('/api/rental', async (req, res) => {
     }
 });
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("Server started");
 });
