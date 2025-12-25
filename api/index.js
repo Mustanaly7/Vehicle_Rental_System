@@ -7,23 +7,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Database connection config
-const dbConfig = {
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306,
-    // Add SSL for Aiven/TiDB (Required for cloud databases)
-    ssl: {
-        rejectUnauthorized: false
-    }
-};
-
+// Root Route
 app.get("/", (req, res) => {
     res.send("Vehicle Rental Backend Running 🚗");
 });
 
+// API Route
 app.post('/api/rental', async (req, res) => {
     try {
         const { full_name, email, license_number, vehicle_type, rental_start, rental_end, phone, additional_info, terms } = req.body;
@@ -32,7 +21,16 @@ app.post('/api/rental', async (req, res) => {
             return res.status(400).json({ error: 'All required fields must be filled' });
         }
 
-        const connection = await mysql.createConnection(dbConfig);
+        // --- CHANGED HERE ---
+        // We now use the single DATABASE_URL variable from Vercel
+        // We explicitly add the SSL setting to ensure Aiven accepts the connection
+        const connection = await mysql.createConnection({
+            uri: process.env.DATABASE_URL,
+            ssl: {
+                rejectUnauthorized: false
+            }
+        });
+        // --------------------
 
         const [result] = await connection.execute(
             `INSERT INTO rentals (full_name, email, license_number, vehicle_type, rental_start, rental_end, phone, additional_info) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
