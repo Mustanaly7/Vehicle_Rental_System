@@ -1,6 +1,3 @@
-CREATE DATABASE IF NOT EXISTS vehicle_rental;
-USE vehicle_rental;
-
 CREATE TABLE IF NOT EXISTS rentals (
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
